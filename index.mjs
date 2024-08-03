@@ -1,4 +1,4 @@
-import "dotenv/config.js";
+import 'dotenv/config.js';
 
 import express from 'express';
 import cors from 'cors';
@@ -19,6 +19,8 @@ app.get('/search', async (req, res) => {
   const response = await queryBestPools({ tokenA, tokenB });
   res.json(response);
 });
+
+app.get('/check', (req, res) => res.send('Server is running ...'));
 
 app.listen(port, () => {
   console.log(`Server is running on ${host}:${port}`);
