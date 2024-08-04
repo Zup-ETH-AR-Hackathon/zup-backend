@@ -13,6 +13,7 @@ export async function queryLast24HsPools({ tokenA, tokenB }) {
           token1_: {id: "${tokenB}"}
         }
       ) {
+        initialFeeTier
         poolDayData(
           orderBy: date,
           orderDirection: desc,
@@ -36,6 +37,43 @@ export async function queryLast24HsPools({ tokenA, tokenB }) {
   return response?.data?.pools?.map(item => {
     const { id, feesUSD, tvlUSD } = item.poolDayData[0];
     const poolId = id.split('-')[0];
-    return { poolId, apr: calculateAPR(feesUSD, tvlUSD) };
+    const initialFeeTier = item.initialFeeTier;
+    return { poolId, apr: calculateAPR(feesUSD, tvlUSD), initialFeeTier };
+  });
+}
+
+export async function queryLast90DaysPools({ tokenA, tokenB }) {
+  const lastDaysQuery = ({ tokenA, tokenB, numberOfDays }) => `
+    query {
+      pools(
+        where: {
+          token0_: { id: "${tokenA}"},
+          token1_: {id: "${tokenB}"}
+        }
+      ) {
+        initialFeeTier
+        poolDayData(
+          orderBy: date,
+          orderDirection: desc,
+          first: ${numberOfDays}
+        ) {
+          id
+          tvlUSD # Last snapshot of the Pool's TVL at date
+          feesUSD # Pool's Collected fees since last snapshot
+        }
+      }
+    }
+  `;
+
+  const response = await apiRequest({
+    queryURL: NURI_URL,
+    tokensQuery: lastDaysQuery({ tokenA, tokenB, numberOfDays: 90 }),
+  });
+
+  return response?.data?.pools?.map(item => {
+    const { id, feesUSD, tvlUSD } = item.poolDayData[0];
+    const poolId = id.split('-')[0];
+    const initialFeeTier = item.initialFeeTier;
+    return { poolId, apr: calculateAPR(feesUSD, tvlUSD), initialFeeTier };
   });
 }
