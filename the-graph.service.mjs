@@ -1,8 +1,5 @@
 import { izumiQueryLast24HsPools } from './scroll-subgraph/izumi.query.mjs';
-import {
-  nuriQueryLast24HsPools,
-  nuriQueryLast90DaysPools,
-} from './scroll-subgraph/nuri.query.mjs';
+import { nuriQueryLast24HsPools } from './scroll-subgraph/nuri.query.mjs';
 import { getBestAPRPool } from './utils/fees.utils.mjs';
 
 export async function queryBestPools({ tokenA, tokenB }) {
@@ -23,7 +20,7 @@ export async function queryBestPools({ tokenA, tokenB }) {
     izumiQueryLast24HsPools({ tokenA, tokenB }),
     izumiQueryLast24HsPools({ tokenA: tokenB, tokenB: tokenA }),
   ]);
-  const pool24hs = {
+  return {
     nuri_24hs: {
       name: 'Nuri Exchange',
       ...getBestAPRPool([...nuri_A_B_24hs, ...nuri_B_A_24hs]),
@@ -32,8 +29,5 @@ export async function queryBestPools({ tokenA, tokenB }) {
       name: 'iZUMI Finance',
       ...getBestAPRPool([...izumi_A_B_24hs, ...izumi_B_A_24hs]),
     },
-  };
-  return {
-    pool24hs: getBestAPRPool([pool24hs.nuri_24hs, pool24hs.izumi_24hs]),
   };
 }
