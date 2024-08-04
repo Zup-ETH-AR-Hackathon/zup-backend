@@ -4,7 +4,7 @@ import { calculateAPR } from '../utils/fees.utils.mjs';
 
 const { THE_GRAPH_API_KEY } = process.env;
 const NURI_URL = `https://gateway-arbitrum.network.thegraph.com/api/${THE_GRAPH_API_KEY}/subgraphs/id/Eqr2CueSusTohoTsXCiQgQbaApjuK2ikFvpqkVTPo1y5`;
-export async function queryLast24HsPools({ tokenA, tokenB }) {
+export async function nuriQueryLast24HsPools({ tokenA, tokenB }) {
   const lastDayQuery = ({ tokenA, tokenB, isAfterMidday }) => `
     query {
       pools(
@@ -21,8 +21,8 @@ export async function queryLast24HsPools({ tokenA, tokenB }) {
           ${!isAfterMidday ? 'skip: 1' : ''}
         ) {
           id
-          tvlUSD # Last snapshot of the Pool's TVL at date
-          feesUSD # Pool's Collected fees since last snapshot
+          tvlUSD
+          feesUSD
         }
       }
     }
@@ -42,7 +42,7 @@ export async function queryLast24HsPools({ tokenA, tokenB }) {
   });
 }
 
-export async function queryLast90DaysPools({ tokenA, tokenB }) {
+export async function nuriQueryLast90DaysPools({ tokenA, tokenB }) {
   const lastDaysQuery = ({ tokenA, tokenB, numberOfDays }) => `
     query {
       pools(
@@ -58,8 +58,8 @@ export async function queryLast90DaysPools({ tokenA, tokenB }) {
           first: ${numberOfDays}
         ) {
           id
-          tvlUSD # Last snapshot of the Pool's TVL at date
-          feesUSD # Pool's Collected fees since last snapshot
+          tvlUSD
+          feesUSD
         }
       }
     }
@@ -75,5 +75,5 @@ export async function queryLast90DaysPools({ tokenA, tokenB }) {
     const poolId = id.split('-')[0];
     const initialFeeTier = item.initialFeeTier;
     return { poolId, apr: calculateAPR(feesUSD, tvlUSD), initialFeeTier };
-  });
+  }) || [];
 }
