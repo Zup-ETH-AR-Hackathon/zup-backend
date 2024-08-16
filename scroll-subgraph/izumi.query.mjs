@@ -1,8 +1,9 @@
-import { apiRequest } from '../utils/api.utils.mjs';
-import { calculateAPR } from '../utils/fees.utils.mjs';
+import { apiRequest } from "../utils/api.utils.mjs";
+import { calculateAPR } from "../utils/fees.utils.mjs";
 
-const IZUMI_URL =
-  'https://graph-node-api.izumi.finance/query/subgraphs/name/izi-swap-scroll';
+const { THE_GRAPH_API_KEY } = process.env;
+
+const IZUMI_URL = `https://gateway.thegraph.com/api/${THE_GRAPH_API_KEY}/subgraphs/id/GaM6uJyBBazj4g85xvU4mKQYUFNE6ZwtZLYZWuu8ziA7`;
 
 export async function queryPoolData({ tokenA, tokenB }) {
   const poolDataQuery = ({ tokenA, tokenB }) => `
@@ -62,7 +63,7 @@ export async function izumiQueryLast24HsPools({ tokenA, tokenB }) {
 
   const poolsWithAPR =
     response?.data?.poolHourDatas?.map(({ id, feesUSD, tvlUSD }) => {
-      const poolId = id.split('-')[0];
+      const poolId = id.split("-")[0];
       const initialFeeTier = poolsData[poolId].feeTier;
       return { poolId, apr: calculateAPR(feesUSD, tvlUSD), initialFeeTier };
     }) || [];
@@ -72,7 +73,7 @@ export async function izumiQueryLast24HsPools({ tokenA, tokenB }) {
   // Step 1: Create a map to store the poolId and corresponding items
   const poolMap = new Map();
 
-  poolsWithAPR.forEach(item => {
+  poolsWithAPR.forEach((item) => {
     if (!poolMap.has(item.poolId)) {
       poolMap.set(item.poolId, []);
     }
